@@ -40,6 +40,8 @@ class AssociationCollection : public podio::CollectionBase {
   using CollectionDataT = podio::AssociationCollectionData<FromT, ToT>;
 
 public:
+  using from_type = FromT;
+  using to_type = ToT;
   using value_type = Association<FromT, ToT>;
   using mutable_type = MutableAssociation<FromT, ToT>;
   using const_iterator = AssociationCollectionIterator<FromT, ToT>;
