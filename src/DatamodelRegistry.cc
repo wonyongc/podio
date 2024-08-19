@@ -67,8 +67,13 @@ const std::string& DatamodelRegistry::getDatamodelName(size_t index) const {
 }
 
 RelationNames DatamodelRegistry::getRelationNames(std::string_view typeName) const {
+  
+  std::cout << "RelationNames DatamodelRegistry getRelationNames typeName: " << typeName << std::endl;
+  
   static std::vector<std::string_view> emptyVec{};
   if (typeName.substr(0, 24) == "podio::UserDataCollection") {
+    std::cout << "returning emptyVecs" << std::endl;
+
     return {emptyVec, emptyVec};
   }
 
@@ -78,8 +83,12 @@ RelationNames DatamodelRegistry::getRelationNames(std::string_view typeName) con
   }
 
   if (const auto it = m_relations.find(typeName); it != m_relations.end()) {
+    std::cout << "returning it->second" << std::endl;
+
     return it->second;
   }
+
+    std::cout << "returning emptyVecs at end" << std::endl;
 
   return {emptyVec, emptyVec};
 }

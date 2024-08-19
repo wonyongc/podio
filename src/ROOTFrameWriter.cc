@@ -85,24 +85,43 @@ void ROOTFrameWriter::initBranches(CategoryInfo& catInfo, const std::vector<Stor
     // For the first entry in each category we also record the datamodel
     // definition
     m_datamodelCollector.registerDatamodelDefinition(coll, name);
+    std::cout << "initBranches collection name: " << name << std::endl; // "Event Header"
 
     root_utils::CollectionBranches branches;
+    
     const auto buffers = coll->getBuffers();
+
     // For subset collections we only fill one references branch
     if (coll->isSubsetCollection()) {
+    
       auto& refColl = (*buffers.references)[0];
       const auto brName = root_utils::subsetBranch(name);
       branches.refs.push_back(catInfo.tree->Branch(brName.c_str(), refColl.get()));
-    } else {
+      
+      std::cout << "branches.refs.push_back subset branch brName: " << brName << std::endl;
+    
+    } 
+
+    else {
+    
       // For "proper" collections we populate all branches, starting with the data
       const auto bufferDataType = "vector<" + std::string(coll->getDataTypeName()) + ">";
+
       branches.data = catInfo.tree->Branch(name.c_str(), bufferDataType.c_str(), buffers.data);
 
+      std::cout << "coll->getTypeName() " << coll->getTypeName() << std::endl;
+      std::cout << "coll->getValueTypeName() " << coll->getValueTypeName() << std::endl;
+      std::cout << "coll->getDataTypeName() " << coll->getDataTypeName() << std::endl;
+
       const auto relVecNames = podio::DatamodelRegistry::instance().getRelationNames(coll->getValueTypeName());
+ 
       if (auto refColls = buffers.references) {
         int i = 0;
         for (auto& c : (*refColls)) {
           const auto brName = root_utils::refBranch(name, relVecNames.relations[i++]);
+          
+          std::cout << "buffers.references brName " << brName << std::endl; // "Event Header"
+
           branches.refs.push_back(catInfo.tree->Branch(brName.c_str(), c.get()));
         }
       }
@@ -110,9 +129,22 @@ void ROOTFrameWriter::initBranches(CategoryInfo& catInfo, const std::vector<Stor
       if (auto vmInfo = buffers.vectorMembers) {
         int i = 0;
         for (auto& [type, vec] : (*vmInfo)) {
-          const auto typeName = "vector<" + type + ">";
+          const auto typeName = "vector<" + type + ">"; // double
+
+          std::cout << "typeName " << typeName << std::endl; // vector<double>
+          std::cout << "relVecNames.vectorMembers[i++] " << relVecNames.vectorMembers[i++] << std::endl; 
+
           const auto brName = root_utils::vecBranch(name, relVecNames.vectorMembers[i++]);
+          std::cout << "buffers.vectorMembers brName " << brName << std::endl;
+
+          // vecBranch
+          // inline std::string vecBranch(const std::string& name, std::string_view vecName) {
+          // return "_" + name + "_" + std::string(vecName);
+          // }
+
           branches.vecs.push_back(catInfo.tree->Branch(brName.c_str(), typeName.c_str(), vec));
+          std::cout << "branches.vecs.pushed back " << std::endl;
+
         }
       }
     }
